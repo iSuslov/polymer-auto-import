@@ -1,5 +1,5 @@
 # polymer-auto-import
-Script that checks web components used in your .html file and tries to import definitions automatically 
+Script that checks web components used in your .html file and tries to import definitions automatically. It will also remove all unused imports. 
 
 ##Simple Usage:
 
@@ -65,6 +65,9 @@ into this:
     </script>
 </dom-module>
 ```
+
+##Options
+If you don't want an element to be auto imported, add `noimport` attribute like this:  `<paper-button noimport></paper-button>`
 
 ##Requirements:
   - required web components should be installed with `bower` before use
