@@ -71,4 +71,14 @@ into this:
   - node
 
 ##Suggested usage
-I recommend use this script as an `external tool` with your IDE. 
+I recommend to use this script as an `external tool` with your IDE. 
+
+###WebStorm Example
+Create a new `external tool`
+
+<img src="https://s14.postimg.org/uoxekb701/Screen_Shot_2016_10_16_at_16_14_08.png">
+
+Create a new key binding
+
+<img src="https://s10.postimg.org/h6tsa86pl/Screen_Shot_2016_10_16_at_16_14_46.png">
+
