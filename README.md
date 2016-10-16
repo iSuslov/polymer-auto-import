@@ -85,7 +85,7 @@ I recommend to use this script as an `external tool` with your IDE.
 ###WebStorm Example
 Create a new `external tool`
 
-<img src="https://s14.postimg.org/uoxekb701/Screen_Shot_2016_10_16_at_16_14_08.png">
+<img src="https://s16.postimg.org/v6dotbxs5/Screen_Shot_2016_10_16_at_16_33_37.png">
 
 Create a new key binding
 
