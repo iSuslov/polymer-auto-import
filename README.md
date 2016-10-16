@@ -1,6 +1,12 @@
 # polymer-auto-import
 Script that checks web components used in your .html file and tries to import definitions automatically. It will also remove all unused imports. 
 
+##Install
+
+``
+npm install polymer-auto-import
+``
+
 ##Simple Usage:
 
 Following command
