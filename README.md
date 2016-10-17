@@ -1,5 +1,6 @@
 # polymer-auto-import
-Script that checks web components used in your .html file and tries to import definitions automatically. It will also remove all unused imports. 
+Script that checks web components used in your .html file and tries to import definitions automatically. All unused imports go under `<!--UNUSED DIRECTLY-->` comment.
+
 
 ## Key features
 
@@ -13,6 +14,7 @@ Searches for usages in:
  - Animations in `animationConfig` property
  
 After that it looks for definitions in folders starting from the root project folder and creates relative imports. 
+Not tested for component developing.
 
 ##Install
 
