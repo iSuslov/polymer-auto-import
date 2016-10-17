@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+'use strict';
+
 const fs = require('fs');
 const parse5 = require("parse5");
 const treeAdapter = parse5.treeAdapters.default;
@@ -8,8 +12,14 @@ const ignoreFolders = [
     "test", "demo"
 ]
 
+if(!filePath){
+    const msg = "polymer-imports require first argument to be a file path to the file for inspection, got: " + filePath;
+    throw new Error(msg)
+}
+
 //stop here if not .html
 if (filePath.lastIndexOf('.html') !== filePath.length - 5) {
+    console.log("not a polymer element, exiting")
     return;
 }
 

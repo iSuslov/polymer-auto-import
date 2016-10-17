@@ -5,13 +5,15 @@ Script that checks web components used in your .html file and tries to import de
 ## Key features
 
 Searches for usages in:
-- In `dom-module`
- - All web components with names that contain `-`
- - Animations in `entry-animation` and `exit-animation` attributes
- - Icons in all attributes with name `icon`
-- In `Polymer({...})` initialization snippet
- - Behaviors in `Polymer({behaviors:[...]})` array
- - Animations in `animationConfig` property
+
+<b>In `dom-module`</b>
+ <li>All web components with names that contain</li>
+ <li> Animations in `entry-animation` and `exit-animation` attributes</li>
+ <li> Icons in all attributes with name `icon`</li>
+ 
+<b>In `Polymer({...})` initialization snippet</b>
+ <li> Behaviors in `Polymer({behaviors:[...]})` array</li>
+ <li> Animations in `animationConfig` property</li>
  
 After that it looks for definitions in folders starting from the root project folder and creates relative imports. 
 Not tested for component developing.
@@ -19,15 +21,15 @@ Not tested for component developing.
 ##Install
 
 ``
-npm install polymer-auto-import
+npm install -g polymer-auto-import
 ``
 
 ##Simple Usage:
 
-Following command
+Script takes file path as a first argument. Following command
 
 ``
- node polymer-imports.js /Users/User/Documents/MyProject/app/src/my-app/app-gallery.html 
+ polymer-imports /Users/User/Documents/MyProject/app/src/my-app/app-gallery.html 
 ``
 
 Will convert this:
@@ -216,7 +218,7 @@ I recommend to use this script as an `external tool` with your IDE.
 ###WebStorm Example
 Create a new `external tool`
 
-<img src="https://s16.postimg.org/v6dotbxs5/Screen_Shot_2016_10_16_at_16_33_37.png">
+<img src="https://s14.postimg.org/bjucjn08x/Screen_Shot_2016_10_18_at_01_51_07.png">
 
 Create a new key binding
 
