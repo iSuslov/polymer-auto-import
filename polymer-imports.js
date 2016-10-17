@@ -220,6 +220,7 @@ function checkPolymerObject(string, aggregatorObject) {
             //hacky part. Before eval we need to replace all 'deep' calls to avoid ReferenceError
             //get all problem calls
             const problemCalls = trim.match(/(\s|,|:)\w*\.(\$|\w|\.)*/g);
+            var FAKE_SCOPE = {};
             problemCalls.forEach(function (pc) {
                 const fakeCall = pc.replace(/\w*\.(\$|\w|\.)*/, "FAKE_SCOPE");
                 trim = trim.replace(pc, fakeCall);
