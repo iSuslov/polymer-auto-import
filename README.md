@@ -1,6 +1,19 @@
 # polymer-auto-import
 Script that checks web components used in your .html file and tries to import definitions automatically. It will also remove all unused imports. 
 
+## Key features
+
+Searches for usages in:
+- In `dom-module`
+ - All web components with names that contain `-`
+ - Animations in `entry-animation` and `exit-animation` attributes
+ - Icons in all attributes with name `icon`
+- In `Polymer({...})` initialization snippet
+ - Behaviors in `Polymer({behaviors:[...]})` array
+ - Animations in `animationConfig` property
+ 
+After that it looks for definitions in folders starting from the root project folder and creates relative imports. 
+
 ##Install
 
 ``
@@ -18,23 +31,55 @@ Following command
 Will convert this:
 
 ```html
-<dom-module id="my-app">
+<!--
+`app-gallery`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="app-gallery">
     <template>
         <style>
             :host {
                 display: block;
             }
         </style>
-        <firebase-app>
-        </firebase-app>
+        <paper-button></paper-button>
+        <neon-animated-pages entry-animation="slide-down-animation" exit-animation="slide-left-animation">
 
-        <paper-drawer-panel>
-        </paper-drawer-panel>
+        </neon-animated-pages>
+        <iron-icon icon="vaadin-icons:check"></iron-icon>
+        <paper-icon-button icon="menu"></paper-icon-button>
     </template>
 
     <script>
+
         Polymer({
-            is: 'mt-app',
+
+            is: 'app-gallery',
+            behaviors: [
+                Polymer.NeonAnimationRunnerBehavior,
+                Polymer.NeonAnimatableBehavior,
+            ]
+            ,
+            properties: {
+                animationConfig: {
+                    value: function () {
+                        return {
+                            'entry': [{
+                                name: 'slide-down-animation',
+                                node: this
+                            }, {
+                                name: 'fade-in-animation',
+                                node: this,
+                                timing: {delay: 50}
+                            }]
+                        }
+                    }
+                }
+            },
+
         });
     </script>
 </dom-module>
@@ -45,35 +90,82 @@ into this:
 ```html
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<!--Firebase elements-->
-<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
-
 <!--Paper elements-->
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
-<dom-module id="my-app">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<!--Neon elements-->
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable-behavior.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
+
+<!--Vaadin elements-->
+<link rel="import" href="../../bower_components/vaadin-icons/vaadin-icons.html">
+
+<!--Iron elements-->
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<!--
+`app-gallery`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="app-gallery">
     <template>
         <style>
             :host {
                 display: block;
             }
         </style>
-        <firebase-app>
-        </firebase-app>
+        <paper-button></paper-button>
+        <neon-animated-pages entry-animation="slide-down-animation" exit-animation="slide-left-animation">
 
-        <paper-drawer-panel>
-        </paper-drawer-panel>
+        </neon-animated-pages>
+        <iron-icon icon="vaadin-icons:check"></iron-icon>
+        <paper-icon-button icon="menu"></paper-icon-button>
     </template>
 
     <script>
+
         Polymer({
-            is: 'mt-app',
+
+            is: 'app-gallery',
+            behaviors: [
+                Polymer.NeonAnimationRunnerBehavior,
+                Polymer.NeonAnimatableBehavior,
+            ]
+            ,
+            properties: {
+                animationConfig: {
+                    value: function () {
+                        return {
+                            'entry': [{
+                                name: 'slide-down-animation',
+                                node: this
+                            }, {
+                                name: 'fade-in-animation',
+                                node: this,
+                                timing: {delay: 50}
+                            }]
+                        }
+                    }
+                }
+            },
+
         });
     </script>
 </dom-module>
+
 ```
 
 ##Options
-If you don't want an element to be auto imported, add `noimport` attribute like this:  `<paper-button noimport></paper-button>`
+If you don't want an element to be auto imported (you use lazy loading), add `noimport` attribute like this:  `<paper-button noimport></paper-button>`
 
 ## Importance of polymer.json file
 It is important to have polymer.json file in the root directory of your polymer project. This script searches for `polymer.json` file when determining the root of your project.

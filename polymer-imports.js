@@ -107,7 +107,7 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
     });
 
     //if script tag, check if it has Polymer({ inside
-    if(documentFragment.nodeName === "#text" && documentFragment.parentNode.nodeName === "script"){
+    if (documentFragment.nodeName === "#text" && documentFragment.parentNode.nodeName === "script") {
         checkPolymerObject(documentFragment.value, aggregatorObject);
     }
 }
@@ -141,54 +141,77 @@ function resolveResources(dir, nodesObject, checkBowerComponentsFolder) {
     });
 }
 
-function checkAttributes(attrs, aggregatorObject){
-    attrs.forEach(function(attr){
+function checkAttributes(attrs, aggregatorObject) {
+    attrs.forEach(function (attr) {
         //check icons
-        if(attr.name == "icon" && !isImageUrl(attr.value)){
+        if (attr.name == "icon" && !isImageUrl(attr.value)) {
             var split = attr.value.split(":")
-            if(split.length == 1){
+            if (split.length == 1) {
                 aggregatorObject["iron-icons"] = '';
             } else {
                 var name = split[0];
-                if(name.indexOf('-') === -1){
+                if (name.indexOf('-') === -1) {
                     name += "-icons"
                 }
                 aggregatorObject[name] = '';
             }
         } //check animations
-        else if(attr.name == "entry-animation" || attr.name == "exit-animation"){
+        else if (attr.name == "entry-animation" || attr.name == "exit-animation") {
             aggregatorObject[attr.value] = '';
         }
     })
 }
 
-function checkPolymerObject(string, aggregatorObject){
-    if(string.trim().match(/Polymer\(/gm)){
+function checkPolymerObject(string, aggregatorObject) {
+    var trim = string.trim();
+    if (trim.match(/Polymer\(/gm)) {
         var polymerObj
-        function Polymer(obj){
+
+        function Polymer(obj) {
             polymerObj = obj;
         }
-        try{
+
+        try {
             eval(string);
+
+            //check behaviors
+            if (polymerObj.behaviors && polymerObj.behaviors.length) {
+                var behaviorsDraftArr = trim.match(/behaviors\s*:\s*\[[^\]]*/);
+                if (behaviorsDraftArr.length) {
+                    var behaviorsDraft = behaviorsDraftArr[0];
+                    behaviorsDraft = behaviorsDraft + '"]';
+                    behaviorsDraft = behaviorsDraft.replace(",", '","').replace(/behaviors\s*:\s*\[/, '["').replace(/\s*/g, "");
+                    var behaviors = JSON.parse(behaviorsDraft);
+                    behaviors.forEach(function (behavior) {
+                        behavior = behavior.replace(',', "").trim();
+                        if (behavior.length) {
+                            var name = behavior.split(".");
+                            name = name[name.length - 1];
+                            aggregatorObject[decamelcase(name)] = '';
+                        }
+                    })
+                }
+            }
+
             //check animations
-            if(polymerObj.properties && polymerObj.properties.animationConfig && typeof polymerObj.properties.animationConfig.value === "function"){
+            if (polymerObj.properties && polymerObj.properties.animationConfig && typeof polymerObj.properties.animationConfig.value === "function") {
                 var ac = polymerObj.properties.animationConfig.value();
-                Object.keys(ac).forEach(function(animationKey){
+                Object.keys(ac).forEach(function (animationKey) {
                     var animation = ac[animationKey];
-                    if(animation.length){
-                        animation.forEach(function(a){
-                            if(a.name) {
+                    if (animation.length) {
+                        animation.forEach(function (a) {
+                            if (a.name) {
                                 aggregatorObject[a.name] = '';
                             }
                         })
-                    } else if(animation.name) {
+                    } else if (animation.name) {
                         aggregatorObject[animation.name] = '';
                     }
                 })
             }
-        } catch (e){
+        } catch (e) {
             console.error("Can not parse js part of polymer element. Most probably because there is something else in 'script' tag, " +
-                "try to put third party code into different script tags.")
+                "try to put third party code into different script tags. ", e)
         }
     }
 }
@@ -224,17 +247,21 @@ function sortResources(importsObject) {
     return arr;
 }
 
-function extractElementsName(path){
+function extractElementsName(path) {
     var arr = path.split(separator);
-    var lastIndexOfWebComponentName = arr.length -1;
-    for(var i = arr.length -1; i !== -1; i--){
-        if(arr[i].indexOf("-") !== -1){
+    var lastIndexOfWebComponentName = arr.length - 1;
+    for (var i = arr.length - 1; i !== -1; i--) {
+        if (arr[i].indexOf("-") !== -1) {
             lastIndexOfWebComponentName = i;
         }
     }
     return arr[lastIndexOfWebComponentName].replace(/-.*/, '');
 }
 
-function isImageUrl(value){
+function isImageUrl(value) {
     return !!value.match(/(\/|\.)/)
+}
+
+function decamelcase(string) {
+    return string.match(/([A-Z]?[^A-Z]*)/g).slice(0, -1).join('-').toLowerCase();
 }
