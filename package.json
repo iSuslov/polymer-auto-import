@@ -1,6 +1,6 @@
 {
   "name": "polymer-auto-import",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Check polymer files and organize all imports automatically ",
   "main": "polymer-imports.js",
   "scripts": {

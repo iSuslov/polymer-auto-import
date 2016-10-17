@@ -221,7 +221,7 @@ function checkPolymerObject(string, aggregatorObject) {
             //get all problem calls
             const problemCalls = trim.match(/(\s|,|:)\w*\.(\$|\w|\.)*/g);
             problemCalls.forEach(function (pc) {
-                const fakeCall = pc.replace(/\w*\.(\$|\w|\.)*/, "this");
+                const fakeCall = pc.replace(/\w*\.(\$|\w|\.)*/, "FAKE_SCOPE");
                 trim = trim.replace(pc, fakeCall);
             });
 
