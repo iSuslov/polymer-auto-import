@@ -34,6 +34,7 @@ var sortedImports = sortResources(allNodeNames);
 
 const oldImportsMap = findAndRemoveOldImports(d);
 
+
 const nodeToInsertBefore = d.childNodes[0];
 
 sortedImports.forEach(function (importSection) {
@@ -57,9 +58,9 @@ sortedImports.forEach(function (importSection) {
 
 //Add old imports
 var keys = Object.keys(oldImportsMap);
-if(keys.length){
+if (keys.length) {
     addComment(d, 'UNUSED DIRECTLY');
-    keys.forEach(function(key, i){
+    keys.forEach(function (key, i) {
         var attrs = oldImportsMap[key];
         addLink(d, attrs, keys.length !== i + 1)
     })
@@ -190,35 +191,42 @@ function checkAttributes(attrs, aggregatorObject) {
 function checkPolymerObject(string, aggregatorObject) {
     var trim = string.trim();
     if (trim.match(/Polymer\(/gm)) {
-        var polymerObj
 
-        function Polymer(obj) {
-            polymerObj = obj;
+        //check behaviors
+        var behaviorsDraftArr = trim.match(/behaviors\s*:\s*\[[^\]]*/g);
+        if (behaviorsDraftArr && behaviorsDraftArr.length) {
+            var behaviorsDraft = behaviorsDraftArr[0];
+            behaviorsDraft = behaviorsDraft + '"]';
+            behaviorsDraft = behaviorsDraft.replace(",", '","').replace(/behaviors\s*:\s*\[/, '["').replace(/\s*/g, "");
+            var behaviors = JSON.parse(behaviorsDraft);
+            behaviors.forEach(function (behavior) {
+                behavior = behavior.replace(',', "").trim();
+                if (behavior.length) {
+                    var name = behavior.split(".");
+                    name = name[name.length - 1].replace(/,/g, "");
+                    aggregatorObject[decamelcase(name)] = '';
+                }
+            })
         }
 
+        //check animations
         try {
-            eval(string);
+            var polymerObj
 
-            //check behaviors
-            if (polymerObj.behaviors && polymerObj.behaviors.length) {
-                var behaviorsDraftArr = trim.match(/behaviors\s*:\s*\[[^\]]*/);
-                if (behaviorsDraftArr.length) {
-                    var behaviorsDraft = behaviorsDraftArr[0];
-                    behaviorsDraft = behaviorsDraft + '"]';
-                    behaviorsDraft = behaviorsDraft.replace(",", '","').replace(/behaviors\s*:\s*\[/, '["').replace(/\s*/g, "");
-                    var behaviors = JSON.parse(behaviorsDraft);
-                    behaviors.forEach(function (behavior) {
-                        behavior = behavior.replace(',', "").trim();
-                        if (behavior.length) {
-                            var name = behavior.split(".");
-                            name = name[name.length - 1];
-                            aggregatorObject[decamelcase(name)] = '';
-                        }
-                    })
-                }
+            function Polymer(obj) {
+                polymerObj = obj;
             }
 
-            //check animations
+            //hacky part. Before eval we need to replace all 'deep' calls to avoid ReferenceError
+            //get all problem calls
+            const problemCalls = trim.match(/(\s|,|:)\w*\.(\$|\w|\.)*/g);
+            problemCalls.forEach(function (pc) {
+                const fakeCall = pc.replace(/\w*\.(\$|\w|\.)*/, "this");
+                trim = trim.replace(pc, fakeCall);
+            });
+
+            eval(trim);
+
             if (polymerObj.properties && polymerObj.properties.animationConfig && typeof polymerObj.properties.animationConfig.value === "function") {
                 var ac = polymerObj.properties.animationConfig.value();
                 Object.keys(ac).forEach(function (animationKey) {
@@ -253,7 +261,7 @@ function sortResources(importsObject) {
                     importsObject[key]
                 ]
             })
-        } else {
+        } else if(importsObject[key]){
             var firstName = extractElementsName(importsObject[key]);
             firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
             if (!classificationMap[firstName]) {
