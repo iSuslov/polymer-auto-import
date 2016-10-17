@@ -25,12 +25,14 @@ npm install polymer-auto-import
 Following command
 
 ``
- node polymer-imports.js /Users/User/Documents/MyProject/app/src/my-app/my-app.html 
+ node polymer-imports.js /Users/User/Documents/MyProject/app/src/my-app/app-gallery.html 
 ``
 
 Will convert this:
 
 ```html
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+
 <!--
 `app-gallery`
 
@@ -106,8 +108,11 @@ into this:
 <link rel="import" href="../../bower_components/vaadin-icons/vaadin-icons.html">
 
 <!--Iron elements-->
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html" async>
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<!--UNUSED DIRECTLY-->
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
 
 <!--
 `app-gallery`

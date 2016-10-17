@@ -32,36 +32,60 @@ resolveResources(rootDir, allNodeNames, true);
 var sortedImports = sortResources(allNodeNames);
 //aggregator object is full with all information we need
 
-findAndRemoveAllImports(d);
+const oldImportsMap = findAndRemoveOldImports(d);
 
-var nodeToInsertBefore = d.childNodes[0];
+const nodeToInsertBefore = d.childNodes[0];
+
 sortedImports.forEach(function (importSection) {
     if (importSection.name) {
-        var comment = treeAdapter.createCommentNode(importSection.name + ' elements');
-        treeAdapter.insertTextBefore(d, '\n\n', nodeToInsertBefore)
-        treeAdapter.insertBefore(d, comment, nodeToInsertBefore);
-        treeAdapter.insertTextBefore(d, '\n', nodeToInsertBefore);
+        addComment(d, importSection.name + ' elements');
     }
     importSection.imports.forEach(function (importUrl, i) {
-        var importNode = treeAdapter.createElement('link', 'http://www.w3.org/1999/xhtml',
-            [{name: 'rel', value: 'import'}, {name: 'href', value: importUrl}])
-        treeAdapter.insertBefore(d, importNode, nodeToInsertBefore);
-        if (importSection.imports.length !== i + 1) {
-            treeAdapter.insertTextBefore(d, '\n', nodeToInsertBefore);
-        }
+        var attrs = oldImportsMap[importUrl] ? oldImportsMap[importUrl] :
+            [{
+                name: 'rel',
+                value: 'import'
+            }, {
+                name: 'href',
+                value: importUrl
+            }];
+
+        addLink(d, attrs, importSection.imports.length !== i + 1)
+        delete oldImportsMap[importUrl];
     });
-})
+});
+
+//Add old imports
+var keys = Object.keys(oldImportsMap);
+if(keys.length){
+    addComment(d, 'UNUSED DIRECTLY');
+    keys.forEach(function(key, i){
+        var attrs = oldImportsMap[key];
+        addLink(d, attrs, keys.length !== i + 1)
+    })
+}
 
 fs.writeFileSync(filePath, parse5.serialize(d, {booleanAttributes: true}));
 
 
 //Methods
+function addLink(document, attrs, addLineBreak) {
+    var importNode = treeAdapter.createElement('link', 'http://www.w3.org/1999/xhtml', attrs);
+    treeAdapter.insertBefore(document, importNode, nodeToInsertBefore);
+    addLineBreak && treeAdapter.insertTextBefore(document, '\n', nodeToInsertBefore);
+}
+function addComment(document, text) {
+    var comment = treeAdapter.createCommentNode(text);
+    treeAdapter.insertTextBefore(document, '\n\n', nodeToInsertBefore)
+    treeAdapter.insertBefore(document, comment, nodeToInsertBefore);
+    treeAdapter.insertTextBefore(document, '\n', nodeToInsertBefore);
+}
 
 function getElementNameFromImportPath(path) {
     return path.replace(".html", "").replace(/.*\//g, "");
 }
 
-function findAndRemoveAllImports(d) {
+function findAndRemoveOldImports(d) {
     var arr = treeAdapter.getChildNodes(d);
     var importsMap = {};
     var lastIndexOfImport = -1;
@@ -76,7 +100,7 @@ function findAndRemoveAllImports(d) {
                 attrMap[attr.name] = attr.value;
             });
             if (isImport && attrMap["href"]) {
-                importsMap[getElementNameFromImportPath(attrMap["href"])] = attrMap["href"];
+                importsMap[attrMap["href"]] = el.attrs;
                 lastIndexOfImport = i;
             }
         }
@@ -85,6 +109,7 @@ function findAndRemoveAllImports(d) {
     for (var i = 0; i <= lastIndexOfImport; i++) {
         treeAdapter.detachNode(d.childNodes[0]);
     }
+
     return importsMap;
 }
 
@@ -211,7 +236,7 @@ function checkPolymerObject(string, aggregatorObject) {
             }
         } catch (e) {
             console.error("Can not parse js part of polymer element. Most probably because there is something else in 'script' tag, " +
-                "try to put third party code into different script tags. ", e)
+                "try to put third party code into different script tags.", e)
         }
     }
 }
