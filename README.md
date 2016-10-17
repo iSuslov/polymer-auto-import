@@ -179,7 +179,7 @@ It is important to have polymer.json file in the root directory of your polymer 
 
 ##Keypoints 
 
-If you have other scripts that run inside `<script>` snippet where `Polymer({})` initialization happens, it is possible that `polymer-auto-import` will fail to check behaviours and animations there.
+If you have other scripts that run inside `<script>` snippet where `Polymer({})` initialization happens, it is possible that `polymer-auto-import` will fail to check behaviors and animations there.
  For example 
  ```
  <script>
