@@ -4,6 +4,9 @@ const treeAdapter = parse5.treeAdapters.default;
 
 const filePath = process.argv[2];
 const separator = '/';
+const ignoreFolders = [
+    "test", "demo"
+]
 
 //stop here if not .html
 if (filePath.lastIndexOf('.html') !== filePath.length - 5) {
@@ -24,6 +27,7 @@ const d = parse5.parseFragment(file);
 const allNodeNames = {'polymer': ''};
 
 collectAllWebComponentsTagNames(d, allNodeNames);
+
 resolveResources(rootDir, allNodeNames, true);
 var sortedImports = sortResources(allNodeNames);
 //aggregator object is full with all information we need
@@ -96,6 +100,20 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
         if (name.indexOf("dom-") === -1 && name.indexOf("-") !== -1 && !node.attrs.find(function (attr) {
                 return attr.name === "noimport";
             })) {
+            node.attrs.forEach(function(attr){
+                if(attr.name == "icon" && !isImageUrl(attr.value)){
+                    var split = attr.value.split(":")
+                    if(split.length == 1){
+                        aggregatorObject["iron-icons"] = '';
+                    } else {
+                        var name = split[0];
+                        if(name.indexOf('-') === -1){
+                            name += "-icons"
+                        }
+                        aggregatorObject[name] = '';
+                    }
+                }
+            })
             aggregatorObject[name] = '';
         }
         collectAllWebComponentsTagNames(node, aggregatorObject);
@@ -122,7 +140,7 @@ function findRootDir(filePath) {
 function resolveResources(dir, nodesObject, checkBowerComponentsFolder) {
     fs.readdirSync(dir).forEach(function (content) {
         var path = dir + separator + content;
-        if (content.indexOf(".") !== 0 && fs.lstatSync(path).isDirectory() && (checkBowerComponentsFolder || content !== "bower_components")) {
+        if (content.indexOf(".") !== 0 && fs.lstatSync(path).isDirectory() && ignoreFolders.indexOf(content) == -1 && (checkBowerComponentsFolder || content !== "bower_components")) {
             resolveResources(path, nodesObject)
         } else if (content.substr(content.length - 5, 5) === ".html" && nodesObject.hasOwnProperty(getElementNameFromImportPath(content))) {
             const relativePathToRoot = relativePrefix + path.substr(rootDir.length + 1, 999);
@@ -144,7 +162,7 @@ function sortResources(importsObject) {
                 ]
             })
         } else {
-            var firstName = key.replace(/-.*/, '');
+            var firstName = extractElementsName(importsObject[key]);
             firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
             if (!classificationMap[firstName]) {
                 classificationMap[firstName] = []
@@ -160,4 +178,19 @@ function sortResources(importsObject) {
         })
     })
     return arr;
+}
+
+function extractElementsName(path){
+    var arr = path.split(separator);
+    var lastIndexOfWebComponentName = arr.length -1;
+    for(var i = arr.length -1; i !== -1; i--){
+        if(arr[i].indexOf("-") !== -1){
+            lastIndexOfWebComponentName = i;
+        }
+    }
+    return arr[lastIndexOfWebComponentName].replace(/-.*/, '');
+}
+
+function isImageUrl(value){
+    return !!value.match(/(\/|\.)/)
 }

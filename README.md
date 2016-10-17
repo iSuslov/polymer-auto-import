@@ -75,6 +75,9 @@ into this:
 ##Options
 If you don't want an element to be auto imported, add `noimport` attribute like this:  `<paper-button noimport></paper-button>`
 
+## Importance of polymer.json file
+It is important to have polymer.json file in the root directory of your polymer project. This script searches for `polymer.json` file when determining the root of your project.
+
 ##Requirements:
   - required web components should be installed with `bower` before use
   - node
