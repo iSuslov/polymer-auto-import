@@ -143,13 +143,13 @@ function getParentDir(path) {
 }
 
 function findRootDir(filePath) {
-    var parentDir = filePath;
+    var parentDir = getParentDir(filePath);
     while (parentDir.indexOf(separator) !== -1) {
-        parentDir = getParentDir(parentDir);
         var files = fs.readdirSync(parentDir);
         if (files.indexOf('polymer.json') !== -1) {
             return parentDir;
         }
+        parentDir = getParentDir(parentDir);
     }
     var err = "No polymer.json file found. Can't find root directory for polymer project. File path: ".concat(filePath)
     throw new Error(err)
