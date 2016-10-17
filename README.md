@@ -78,6 +78,34 @@ If you don't want an element to be auto imported, add `noimport` attribute like 
 ## Importance of polymer.json file
 It is important to have polymer.json file in the root directory of your polymer project. This script searches for `polymer.json` file when determining the root of your project.
 
+##Keypoints 
+
+If you have other scripts that run inside <script> snippet where `Polymer({})` initialization happens, it is possible that `polymer-auto-import` will fail to check behaviours and animations there.
+ For example 
+ ```
+ <script>
+ // this will lead to errors when parsing snippet
+ var lib = new Lib();
+ 
+ Polymer({
+    is: "my-component"
+ });
+ 
+ </script>
+ ```
+ the solution is to separate <script> snippets and have one only for Polymer initialization like this:
+  ```
+  <script>
+    // this is OK
+    var lib = new Lib();
+  </script>
+  <script>
+  Polymer({
+     is: "my-component"
+  });
+  </script>
+  ```
+
 ##Requirements:
   - required web components should be installed with `bower` before use
   - node

@@ -100,24 +100,16 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
         if (name.indexOf("dom-") === -1 && name.indexOf("-") !== -1 && !node.attrs.find(function (attr) {
                 return attr.name === "noimport";
             })) {
-            node.attrs.forEach(function(attr){
-                if(attr.name == "icon" && !isImageUrl(attr.value)){
-                    var split = attr.value.split(":")
-                    if(split.length == 1){
-                        aggregatorObject["iron-icons"] = '';
-                    } else {
-                        var name = split[0];
-                        if(name.indexOf('-') === -1){
-                            name += "-icons"
-                        }
-                        aggregatorObject[name] = '';
-                    }
-                }
-            })
+            checkAttributes(node.attrs, aggregatorObject);
             aggregatorObject[name] = '';
         }
         collectAllWebComponentsTagNames(node, aggregatorObject);
     });
+
+    //if script tag, check if it has Polymer({ inside
+    if(documentFragment.nodeName === "#text" && documentFragment.parentNode.nodeName === "script"){
+        checkPolymerObject(documentFragment.value, aggregatorObject);
+    }
 }
 
 function getParentDir(path) {
@@ -147,6 +139,58 @@ function resolveResources(dir, nodesObject, checkBowerComponentsFolder) {
             nodesObject[content.substr(0, content.length - 5)] = relativePathToRoot;
         }
     });
+}
+
+function checkAttributes(attrs, aggregatorObject){
+    attrs.forEach(function(attr){
+        //check icons
+        if(attr.name == "icon" && !isImageUrl(attr.value)){
+            var split = attr.value.split(":")
+            if(split.length == 1){
+                aggregatorObject["iron-icons"] = '';
+            } else {
+                var name = split[0];
+                if(name.indexOf('-') === -1){
+                    name += "-icons"
+                }
+                aggregatorObject[name] = '';
+            }
+        } //check animations
+        else if(attr.name == "entry-animation" || attr.name == "exit-animation"){
+            aggregatorObject[attr.value] = '';
+        }
+    })
+}
+
+function checkPolymerObject(string, aggregatorObject){
+    if(string.trim().match(/Polymer\(/gm)){
+        var polymerObj
+        function Polymer(obj){
+            polymerObj = obj;
+        }
+        try{
+            eval(string);
+            //check animations
+            if(polymerObj.properties && polymerObj.properties.animationConfig && typeof polymerObj.properties.animationConfig.value === "function"){
+                var ac = polymerObj.properties.animationConfig.value();
+                Object.keys(ac).forEach(function(animationKey){
+                    var animation = ac[animationKey];
+                    if(animation.length){
+                        animation.forEach(function(a){
+                            if(a.name) {
+                                aggregatorObject[a.name] = '';
+                            }
+                        })
+                    } else if(animation.name) {
+                        aggregatorObject[animation.name] = '';
+                    }
+                })
+            }
+        } catch (e){
+            console.error("Can not parse js part of polymer element. Most probably because there is something else in 'script' tag, " +
+                "try to put third party code into different script tags.")
+        }
+    }
 }
 
 function sortResources(importsObject) {
