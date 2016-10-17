@@ -80,7 +80,7 @@ It is important to have polymer.json file in the root directory of your polymer 
 
 ##Keypoints 
 
-If you have other scripts that run inside <script> snippet where `Polymer({})` initialization happens, it is possible that `polymer-auto-import` will fail to check behaviours and animations there.
+If you have other scripts that run inside `<script>` snippet where `Polymer({})` initialization happens, it is possible that `polymer-auto-import` will fail to check behaviours and animations there.
  For example 
  ```
  <script>
@@ -93,12 +93,13 @@ If you have other scripts that run inside <script> snippet where `Polymer({})` i
  
  </script>
  ```
- the solution is to separate <script> snippets and have one only for Polymer initialization like this:
+ the solution is to separate `<script>` snippets and have one only for Polymer initialization like this:
   ```
   <script>
     // this is OK
     var lib = new Lib();
   </script>
+  
   <script>
   Polymer({
      is: "my-component"
@@ -108,7 +109,7 @@ If you have other scripts that run inside <script> snippet where `Polymer({})` i
 
 ##Requirements:
   - required web components should be installed with `bower` before use
-  - node
+  - node v4 +
 
 ##Suggested usage
 I recommend to use this script as an `external tool` with your IDE. 
