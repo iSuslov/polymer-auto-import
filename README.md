@@ -1,15 +1,19 @@
 # polymer-auto-import
 Script that checks web components used in your .html file and tries to import definitions automatically. All unused imports go under `<!--UNUSED DIRECTLY-->` comment.
 
+<a target="_blank" href="https://www.npmjs.com/package/polymer-auto-import">npm package</a> | <a target="_blank" href="https://github.com/iSuslov/polymer-auto-import">github</a>
 
 ## Key features
 
 Searches for usages in:
 
+
 <b>In `dom-module`</b>
  <li>All web components with names that contain</li>
  <li> Animations in `entry-animation` and `exit-animation` attributes</li>
  <li> Icons in all attributes with name `icon`</li>
+ <li> All `include` attributes in `style` tags </li>
+ 
  
 <b>In `Polymer({...})` initialization snippet</b>
  <li> Behaviors in `Polymer({behaviors:[...]})` array</li>
@@ -174,10 +178,47 @@ into this:
 ```
 
 ##Options
+In most cases you will be fine without additional configuration.
+
+####Additional arguments
+`polymer-imports` command requires one mandatory argument - path for a file to inspect for imports. 
+
+You can also path two more arguments (order does not matter):
+
+- Path to the <b>config file</b> which should be `.json` file with configuration
+- Path to the <b>root directory</b> of your project. If you passed this path, it is not required to have `polymer.json` in root dir.
+
+####Config file
+Config file can be `.json` file with any name and any set of properties from the default configuration, which looks like this:
+
+``` json
+{
+    "rootDir": "",
+    "bowerFolderName": "bower_components",
+    "ignoredFolders": ["test", "demo"],
+    "ignoredComponents": [],
+    "animationAttributes": [
+        "entry-animation",
+        "exit-animation"
+    ],
+    "resolve: {
+        "iron-flex": "iron-flex-layout-classes",
+        "iron-flex-reverse": "iron-flex-layout-classes",
+        "iron-flex-alignment": "iron-flex-layout-classes",
+        "iron-flex-factors": "iron-flex-layout-classes",
+        "iron-positioning": "iron-flex-layout-classes"
+    }
+}
+```
+You can use this default config file as an example for your own. If you define a property in your config it will <b>OVERRIDE</b> the same property in the default configuration. 
+
+####Ignore import
 If you don't want an element to be auto imported (you use lazy loading), add `noimport` attribute like this:  `<paper-button noimport></paper-button>`
 
+You can also avoid element to be imported by adding its name to config (if you use config file) to `"ignoredComponents"` property like this `"ignoredComponents": ["paper-button"]`
+
 ## Importance of polymer.json file
-It is important to have polymer.json file in the root directory of your polymer project. This script searches for `polymer.json` file when determining the root of your project.
+If you did not provide root directory path of your project as second or third argument or `rootDir` in config file it is important to have polymer.json file in the root directory of your polymer project. This script will search for `polymer.json` file when determining the root of your project.
 
 ##Keypoints 
 
