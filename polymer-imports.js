@@ -219,7 +219,17 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
                     })
                 }
             })
+        } else{
+            node.attrs.forEach(function (attr) {
+                if (attr.name === "effects" && attr.value) {
+                    var includesArray = attr.value.split(" ");
+                    includesArray.forEach(function (includeVal) {
+                        aggregatorObject[config.resolve[includeVal] || includeVal] = '';
+                    })
+                }
+            })
         }
+
         collectAllWebComponentsTagNames(node, aggregatorObject);
     });
 
