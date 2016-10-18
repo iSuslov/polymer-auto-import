@@ -212,7 +212,7 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
             aggregatorObject[config.resolve[name] || name] = '';
         } else if (name === "style") {
             node.attrs.forEach(function (attr) {
-                if (attr.name === "include" && attr.value) {
+                if ((attr.name === "effects" || attr.name === "include") && attr.value) {
                     var includesArray = attr.value.split(" ");
                     includesArray.forEach(function (includeVal) {
                         aggregatorObject[config.resolve[includeVal] || includeVal] = '';
