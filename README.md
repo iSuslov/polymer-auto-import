@@ -10,9 +10,10 @@ Searches for usages in:
 
 <b>In `dom-module`</b>
  <li>All web components with names that contain</li>
- <li> Animations in `entry-animation` and `exit-animation` attributes</li>
+ <li> Animations in `entry-animation` and `exit-animation` attributes (configurable)</li>
  <li> Icons in all attributes with name `icon`</li>
  <li> All `include` attributes in `style` tags </li>
+ <li> All `effects` attributes (configurable) </li>
  
  
 <b>In `Polymer({...})` initialization snippet</b>
@@ -191,13 +192,14 @@ You can also path two more arguments (order does not matter):
 ####Config file
 Config file can be `.json` file with any name and any set of properties from the default configuration, which looks like this:
 
-``` json
+```
 {
     "rootDir": "",
     "bowerFolderName": "bower_components",
     "ignoredFolders": ["test", "demo"],
     "ignoredComponents": [],
-    "animationAttributes": [
+    "attributes": [
+        "effects",
         "entry-animation",
         "exit-animation"
     ],

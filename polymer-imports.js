@@ -23,7 +23,8 @@ const config = {
     bowerFolderName: "bower_components",
     ignoredFolders: ["test", "demo"],
     ignoredComponents: [],
-    animationAttributes: [
+    attributes: [
+        "effects",
         "entry-animation",
         "exit-animation"
     ],
@@ -172,7 +173,7 @@ function findOldImportsAndCreateImportsNode(d) {
                 findAndRemoveImports(el);
             }
         });
-        likeBreaksToRemove.forEach(function(el){
+        likeBreaksToRemove.forEach(function (el) {
             treeAdapter.detachNode(el);
         });
     }
@@ -213,15 +214,6 @@ function collectAllWebComponentsTagNames(documentFragment, aggregatorObject) {
         } else if (name === "style") {
             node.attrs.forEach(function (attr) {
                 if ((attr.name === "effects" || attr.name === "include") && attr.value) {
-                    var includesArray = attr.value.split(" ");
-                    includesArray.forEach(function (includeVal) {
-                        aggregatorObject[config.resolve[includeVal] || includeVal] = '';
-                    })
-                }
-            })
-        } else{
-            node.attrs.forEach(function (attr) {
-                if (attr.name === "effects" && attr.value) {
                     var includesArray = attr.value.split(" ");
                     includesArray.forEach(function (includeVal) {
                         aggregatorObject[config.resolve[includeVal] || includeVal] = '';
@@ -298,11 +290,14 @@ function checkAttributes(attrs, aggregatorObject) {
                 if (name.indexOf('-') === -1) {
                     name += "-icons"
                 }
-                aggregatorObject[name] = '';
+                aggregatorObject[config.resolve[name] || name] = '';
             }
-        } //check animations
-        else if (attr.value && config.animationAttributes.indexOf(attr.name) !== -1) {
-            aggregatorObject[attr.value] = '';
+        } //check other attributes
+        else if (attr.value && config.attributes.indexOf(attr.name) !== -1) {
+            var valueArray = attr.value.split(" ");
+            valueArray.forEach(function (name) {
+                aggregatorObject[config.resolve[name] || name] = '';
+            });
         }
     })
 }
