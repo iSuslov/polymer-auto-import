@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const filePath = process.argv[2];
+const fs = require('fs'),
+resolve = require('path').resolve
+const filePath = resolve(process.argv[2]);
+const outputPath = filePath;
+
 
 if (!filePath) {
     const msg = "polymer-imports require first argument to be a file path to the file for inspection, got: " + filePath;
@@ -94,7 +97,7 @@ tagsToRemove.forEach(function (el) {
     treeAdapter.detachNode(el);
 })
 
-fs.writeFileSync(filePath, parse5.serialize(d, {booleanAttributes: true}));
+fs.writeFileSync(outputPath, parse5.serialize(d, {booleanAttributes: true}));
 
 
 //Methods
@@ -153,7 +156,7 @@ function findOldImportsAndCreateImportsNode(d) {
                     }
                     attrMap[attr.name] = attr.value;
                 });
-            } else if (treeAdapter.isCommentNode(el) && el.data.match(' elements')) {
+            } else if (treeAdapter.isCommentNode(el) && (el.data.match(' elements') || el.data.match('UNUSED DIRECTLY'))) {
                 tagsToRemove.push(el);
                 if (arr[i - 1] && treeAdapter.isTextNode(arr[i - 1]) && arr[i - 1].value.match(/\s/g)) {
                     likeBreaksToRemove.push(arr[i - 1]);

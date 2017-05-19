@@ -1,5 +1,8 @@
 #idea
 .idea
+bower_components
+polymer.json
+test
 
 # Logs
 logs
@@ -39,3 +42,6 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+.test.html
+.test-result.html
